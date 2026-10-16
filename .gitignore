@@ -1,0 +1,43 @@
+build*/
+.cache/
+.idea/
+__pycache__/
+sdkconfig.old
+.DS_Store
+.vscode/settings.json
+
+# Local-dev tooling (not for upstream)
+_flash_helper.py
+
+# Managed components are pulled by IDF component manager from idf_component.yml
+# + dependencies.lock; the source-of-truth is those two files.
+managed_components/
+
+# Local development snapshots and generated release artifacts
+.backups/
+*.before-*
+*.after-*
+*.bak
+*.orig
+*.rej
+*~
+releases/*.zip
+*-backup-*
+*.backup-*
+/tmp/
+
+# Separate projects and unpacked SD distributions must not enter firmware Git.
+/web-flasher/
+/sdcard/
+/SD card files/
+.gradle/
+local.properties
+*.jks
+*.keystore
+.env
+.env.*
+!.env.example
+*.p12
+*.pfx
+*nvs*backup*
+*flash*backup*

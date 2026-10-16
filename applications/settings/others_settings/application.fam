@@ -1,0 +1,9 @@
+App(
+    appid="others_settings",
+    name="Others",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="others_settings_app",
+    requires=["desktop", "gui"],
+    stack_size=2 * 1024,
+    order=90,
+)

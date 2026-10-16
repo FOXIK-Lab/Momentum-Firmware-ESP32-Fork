@@ -1,0 +1,9 @@
+App(
+    appid="qflipper_settings",
+    name="qFlipper Settings",
+    apptype=FlipperAppType.SETTINGS,
+    entry_point="qflipper_settings_app",
+    requires=["desktop", "gui"],
+    stack_size=2 * 1024,
+    order=91,
+)

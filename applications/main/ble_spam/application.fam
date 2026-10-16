@@ -1,0 +1,11 @@
+App(
+    appid="ble_spam",
+    name="Bluetooth",
+    apptype=FlipperAppType.MENUEXTERNAL,
+    entry_point="ble_spam_app",
+    requires=["bt", "wifi"],
+    stack_size=8 * 1024,
+    icon="A_Plugins_14",
+    order=67,
+    fap_libs=["assets"],
+)

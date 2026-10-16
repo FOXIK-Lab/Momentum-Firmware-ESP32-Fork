@@ -1,0 +1,14 @@
+App(
+    appid="u2f",
+    name="U2F",
+    apptype=FlipperAppType.APP,
+    entry_point="u2f_app",
+    stack_size=16 * 1024,
+    sources=["u2f_app.c", "u2f.c", "u2f_hid.c", "u2f_data_port.c", "scenes/*.c", "views/*.c"],
+    icon="A_U2F_14",
+    order=80,
+    resources="resources",
+    fap_libs=["assets", "mbedtls"],
+    fap_category="USB",
+    fap_icon="icon.png",
+)
