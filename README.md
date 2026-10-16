@@ -1,334 +1,220 @@
 # Momentum Firmware ESP32 Port
 
-Independent Momentum-style firmware port for **LilyGo T-Embed CC1101**,
-maintained by [Filip1x3](https://github.com/Filip1x3). Based on
-[Sor3nt/Flipper-Zero-ESP32-Port](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port),
-with firmware features and assets adapted from
-[Next-Flip/Momentum-Firmware](https://github.com/Next-Flip/Momentum-Firmware).
-This is not an official Momentum or Flipper Devices release.
+Momentum-style firmware for **LilyGo T-Embed CC1101**, maintained by
+[Filip1x3](https://github.com/Filip1x3).
 
-Read [SECURITY.md](SECURITY.md) and the [pre-publication review](SECURITY-REVIEW.md).
-This is experimental firmware, not a security-certified authenticator.
-The web flasher is maintained in a separate project. Only the firmware source
-and the prepared [sdcard.zip](sdcard.zip) distribution belong in this repository.
-Do not replace this port with an upstream firmware binary.
+Based on [Sor3nt's Flipper Zero ESP32 Port](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port),
+with code, interface components and assets adapted from
+[Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware).
+This is an independent project, not an official Momentum or Flipper Devices release.
 
-## Current port notes
+[Download firmware and SD files](https://github.com/Filip1x3/Momentum-Firmware-ESP32-Port/releases)
+ · [Security notes](SECURITY.md) · [Security review](SECURITY-REVIEW.md)
 
-- T-Embed CC1101 is the target validated for this fork; other board code below
-  is inherited and is not a promise of equivalent runtime behavior.
-- Web-Filesystem requires HTTP Basic login: user `admin` and the random session
-  password displayed on T-Embed. Restarting the server changes the password.
-  Use a trusted network; HTTP is not encrypted.
-- Network firmware/SD updates are disabled until this fork has its own release
-  feed. Private repository tokens must never be embedded in firmware.
-- Software U2F has no secure element. Always retain another account recovery
-  method. PIN protection is not flash encryption.
-- Build with ESP-IDF 5.4.1 using `python winbuild.py build --board t_embed` or
-  `bash build.sh --board t_embed --build-only`. See SECURITY-REVIEW.md for SDK
-  security-update limitations before any public release.
+## On the device
 
-## Inherited platform documentation
+<p align="center">
+  <img src="docs/images/tembed-boot.PNG" width="280" alt="Momentum boot screen on T-Embed CC1101">
+  <img src="docs/images/tembed-menu.PNG" width="280" alt="Momentum main menu on T-Embed CC1101">
+  <img src="docs/images/tembed-control-center.PNG" width="280" alt="Momentum Control Center on T-Embed CC1101">
+</p>
 
-> WARNING: I do not take responsibility if you damage your board or property. This guide is for educational purposes only — proceed at your own risk.
+Photos show the port running on a real T-Embed CC1101. Colors and graphics depend
+on the selected screen theme and asset pack.
 
-### Flipper Zero ESP32 Port base
+## Supported board
 
-A port of the [Flipper Zero](https://flipperzero.one/) firmware to ESP32-based development boards. This project brings the Flipper Zero UI, services, and application framework to affordable ESP32 hardware — no Flipper Zero required.
+| Board | MCU | Display | Controls | Storage |
+|---|---|---|---|---|
+| **LilyGo T-Embed CC1101** | ESP32-S3 | 320 × 170 color LCD | Rotary encoder, encoder button and Back button | microSD |
 
-## Discord
+This is the only supported board for this fork and its release binaries.
+Inherited source files for other boards are not a support commitment.
+Peripheral support depends on the hardware actually fitted or connected;
+this port does not give the ESP32 every peripheral of a Flipper Zero.
 
-Join the [Flipper Zero meets ESP32 - Discord](https://discord.gg/5DnAqFXaBC) for support and announcements.
+## What changed from the base ESP32 port
 
-## Supported Boards
+### Momentum interface
 
-![img](pic1.jpg)
+- Dedicated **Momentum** menu with Interface, Protocols and Misc settings.
+  Interface customization lives here instead of the old standalone Settings entry.
+- Momentum boot logo and loading screen, optional intro and screen-theme support.
+- Nine main-menu styles: **List, Wii, DSi, PS4, Vertical, C64, Compact, MNTM and CoverFlow**.
+- Momentum-style Control Center adapted to the rotary encoder, with brightness,
+  volume, lock and system shortcuts. Short-click brightness to adjust it;
+  hold for about 2.5 seconds to open screen settings.
+- Status-bar customization, battery styles and a muted indicator when sound is off.
+- Momentum asset-pack loading for desktop animations, icons and Passport graphics.
+  Packs downloaded from Momentum can be used without manually editing their files.
+- Dolphin level, XP and mood settings, Passport customization, screen colors,
+  dark mode and device-name/shell-color options.
+- Menu text scrolling, browser display options and optional Popup Overlay
+  (disabled by default).
 
-| Board | MCU | Display | Input | SubGHz | NFC | IR | SD Card |
-|---|---|---|---|---|---|---|---|
-| **LilyGo T-Embed CC1101** | ESP32-S3 (Xtensa LX7) | ST7789 320×170 | Rotary encoder + button | CC1101 | PN532 (I2C) | RMT TX + RX | SPI |
-| **Waveshare ESP32-C6-LCD-1.9** | ESP32-C6 (RISC-V) | ST7789V2 320×172 | CST816S touch | — | — | — | SPI |
-| **Waveshare ESP32-C6-LCD-1.47** ⚠️ | ESP32-C6 (RISC-V) | JD9853 320×172 | AXS5106L touch | — | — | — | SPI |
-| **DIY ESP32-S3 with 2.8" TFT** ⚠️ | ESP32-S3 (Xtensa LX7) | 2.8" ILI9341 320×240 | 6× Tactile buttons | CC1101 | PN532 (I2C) | TX | SPI |
+### Desktop, lock screen and settings
 
+- Keypad lock, PIN setup, automatic locking, Auto Lock Pin and lock-on-boot options.
+- Keypad unlock uses three Back presses. The locked screen stays dimmed rather
+  than repeatedly switching off and on.
+- Lock-screen clock/date/status options and animation controls.
+- Locked USB/BLE RPC permissions and optional unlock from a trusted paired phone.
+  Allowing remote unlock can bypass the device PIN; enable it only deliberately.
+- Optional **Format on Bad PINs**, with an explicit warning/confirmation.
+  Repeated incorrect PINs can erase SD-card contents when this is enabled.
+- Reorganized Settings, including **LCD and Notifications**, Desktop, Clock/Alarm,
+  Storage, Power, System, Others, qFlipper Settings and a port-specific About page.
+- LED color, brightness, effects, speed and timeout settings for T-Embed.
 
-> ⚠️ **Waveshare ESP32-C6-LCD-1.47 — supported but barely usable.** The board builds, boots and the UI/touch work, but the ESP32-C6 has only **512 KB SRAM and no PSRAM**. RAM-heavy apps are effectively non-functional. In particular **WiFi**: a normal AP scan works, but **monitor mode / handshake capture fails** — by the time the app's buffers are allocated the WiFi driver can no longer allocate its DMA buffers (`esf_buf_setup_static: alloc eb fail` → `ESP_ERR_NO_MEM`), so no frames are received. Treat this board as usable only for lightweight apps until the WiFi app's memory footprint is reduced (it was designed for the PSRAM-equipped T-Embed).
+### USB, Bluetooth and SD integration
 
-> ⚠️ **DIY ESP32-S3 with 2.8" TFT** - Currently supported via a fork pending full integration, work in progress, ready to flash bins also available in the discord, updated each release
+- **U2F** in the main menu, using USB HID and a per-device software identity in NVS.
+  Startup warnings explain that this is an experimental authenticator.
+- **Bad KB**, the Ducky-script runner adapted from the base port, with USB/BLE
+  transport selection. This is a script runner, not an on-screen typing keyboard.
+- qFlipper-compatible USB RPC bridge with a saved enable-on-boot preference.
+- Phone remote control and trusted-phone unlock, subject to pairing and locked-RPC settings.
+- USB Storage under **Settings → Others**, with an immediate full-screen storage view.
+  USB Storage, U2F, Bad KB and qFlipper may need exclusive use of the USB interface.
+- WiFi enable/disable and Mesh Clients moved into WiFi; Bluetooth enable/disable
+  is available in Bluetooth. Toggle labels reflect the current state.
+- Streaming grouped under Sub-GHz instead of occupying the main menu.
+- Prepared **sdcard.zip** with port-compatible applications, application assets,
+  databases and asset packs. FAP loader/API compatibility fixes are included in firmware.
 
-![img](pic2.jpg)
+### Security hardening
 
-## How to Flash
+- Web-Filesystem login on every route: username **admin**, with a random session
+  password shown on the device. Restart the server to change the password.
+- SD-root/path validation, cross-origin request checks, locked-device checks and
+  bounded uploads for Web-Filesystem.
+- Certificate/hostname verification for network updater connections and safer
+  updater cancellation handling.
+- Network firmware/SD updates remain disabled until a supported release feed is
+  configured. Publishing a GitHub Release does not enable in-device downloads.
+  No private GitHub token is embedded in the firmware.
 
-Use binaries built from this fork or its separately maintained web flasher.
-The upstream Sor3nt web flasher installs a different firmware, not this port.
-After flashing, copy the contents of [sdcard.zip](sdcard.zip) onto a FAT32 SD card.
+## Applications and hardware features
 
-## Firmware Update
+The base port's application framework and hardware integrations remain available:
 
-Since **v2.0.0** the T-Embed can update itself — no PC toolchain or re-flashing required:
+- **Sub-GHz:** CC1101 receive/decode, RAW capture, saved signals, frequency/spectrum
+  tools and remote profiles. Protocol support is not identical to Flipper hardware.
+- **WiFi:** scanning, saved connections, capture/diagnostic tools, Web-Filesystem,
+  network utilities and ESP-NOW buddy integration.
+- **Bluetooth:** device discovery and the base port's BLE/HID tools.
+- **Infrared:** receive/learn, saved remotes and SD-based universal remote databases.
+- **NFC:** PN532-based functions where the required hardware is available;
+  supported operations depend on the card technology and port implementation.
+- **Files:** SD browsing, favorites, copy/paste, rename, delete and folders.
+- **Apps and games:** ESP32-compatible FAP applications, including the existing
+  Doom port. Doom requires its WAD data on the SD card.
+- **JavaScript:** the port's existing mJS runtime and available module bindings;
+  Flipper-specific hardware bindings are not all implemented.
 
-- **Over WiFi (OTA):** disabled in this fork pending its own release feed.
-  The local-file OTA mechanism remains available.
-- **Over USB:** use the **[qT-Embed](https://github.com/Sor3nt/qT-Embed)** desktop companion (a
-  qFlipper-style app for this port) to stream the display, manage SD files and flash firmware over
-  USB — including a *Full flash* option (bootloader + partition table + firmware) to recover a device.
+Use radio, network and HID tools only on devices/networks you own or have
+permission to test. Included features are not a guarantee that every protocol,
+card, peripheral or third-party app works.
 
-> Requires the dual-OTA partition layout. A device on the old single-app layout has to be flashed
-> once via the web flasher (or qT-Embed's *Full flash*) before wireless OTA updates work.
+## Install
 
-## Apps
+Back up your SD card and any important device data before flashing.
+Download the four `.bin` files and `sdcard.zip` from
+[Releases](https://github.com/Filip1x3/Momentum-Firmware-ESP32-Port/releases).
+Use binaries from this fork, not upstream Flipper/Momentum firmware or the
+upstream Sor3nt web flasher.
 
-### 📡 Wireless / RF
+### Full serial flash: ESP32-S3, 16 MB
 
-#### Sub-GHz
-External CC1101 receiver/transmitter for 433–868 MHz signals.
-- Receive & decode
-- Read RAW: capture unknown waveforms to `.sub` files for later analysis
-- Frequency analyzer with sweep & live RSSI
-- **RF Spectrum Analyzer** — colorful, HackRF-style live spectrum view
-- Hopper: scan all preset bands during receive
-- Transmit saved files; manual signal creation (frequency, modulation, protocol, key/serial/counter)
-- Brute force / sub-brute attack with manufacturer dictionary
-- Playlist for sequential transmit
-- **More protocols** — added KeeLoq variants (ERREKA, PUJOL, AERF, SIMPLE_JCM), Agilize Key Pro and Holtek HT6P20B
-- **TPMS decoding** — tire-pressure sensors: Schrader GG4, Citroën, Ford, Renault, Toyota (PMV107J) and a generic decoder; dedicated info view with editable sensor data
-- **Limitation:** AES-encrypted manufacturer keystores (`keeloq_mfcodes`, `nice_flor_s`, `alutech_at_4n`) are not decryptable on this port — only the plain-text `keeloq_mfcodes_user` works for Keeloq decoding.
+Close qFlipper and other programs using the USB port. Put T-Embed into its
+firmware-download mode, then flash these files at their exact hexadecimal offsets:
 
-#### Sub-GHz Remote
-Multi-button remote layouts that batch saved `.sub` files. Map Up/Down/Left/Right/OK to individual transmit signals; switch between persistent remote profiles.
-
-#### WiFi
-Full WiFi pentest toolkit.
-- **Scanner** — SSID, BSSID, channel, RSSI, auth mode
-- **Connect** — auto-detect WPA/WPA2/WPA3, password input or saved password lookup (`/ext/wifi/<ssid>.txt`)
-- **Deauther** — SSID-mode (single AP) or Channel-mode (all on channel)
-- **Smart Deauth** — targeted, station-aware deauthentication
-- **Sniffer** — capture packets to PCAP (saved to `/ext/wifi/`)
-- **Handshake capture** — record EAPOL 4-way handshakes, optionally with deauth trigger
-- **AirSnitch** — auto-bruteforce target with password list
-- **Beacon Spam** — Funny SSIDs / Rickroll / Random / Custom
-- **Network Scan / Port Scan** — host discovery + 19 common-port probe on the connected network
-- **Web Crawler** — domain-based web crawler
-- **Evil Portal** — captive portal with credential harvesting
-  - Built-in templates: Google login, Router firmware update
-  - Custom templates from `/ext/wifi/evil_portal/login_template/*.html` and `/ext/wifi/evil_portal/router_template/*.html` (filename = template name in dropdown)
-  - Marker substitution: `%ERROR%`, `%SSID_OPTIONS%` (live AP scan)
-  - Router-style verify flow: dropdown of real SSIDs, live WLAN re-auth check, captured-credentials screen on success, retry with error banner on fail
-  - Pause/Resume of the AP from the run screen
-  - Captured creds saved to `/ext/wifi/evil_portal/<ssid>_creds.csv`
-  - **Internet bridge** *(new)* — optional STA uplink with NAPT + DNS forwarding so victims get real internet behind the portal; iOS captive-portal "Success" handling; uplink SSID/password configured in-app
-- **Web-Filesystem** — HTTP file server for the SD card; open it in a browser (device hotspot *or* your existing WiFi) to upload, download, rename and delete files, with drag & drop for whole folders
-- **SMB Browser** — browse and download from SMB2/3 network shares (Windows / macOS / NAS) straight to the SD card; guest or password login
-- **Android TV Remote** — control any Android / Google TV (Sony, NVIDIA Shield, Xiaomi Mi Box, Chromecast, …): scan → pair once with the on-screen PIN → on-screen remote (D-Pad, volume, media, power)
-- **Global toggle** — WiFi is now an on/off switch like Bluetooth (from the lock menu); the connection persists across apps and reconnects automatically after a reboot
-
-#### Mesh / Buddy *(ESP-NOW)*
-Pair cheap headless ESP32 boards (**buddies**) to the T-Embed (**master**) over ESP-NOW to offload WiFi capture and run remote actions.
-- Buddy discovery, pair/remove and live status from the lock menu → **Mesh Clients**
-- **Device Identify** — make a paired buddy blink to locate it
-- **WiFi handshake capture** — buddy passively captures EAPOL handshakes on a chosen channel (1–13)
-- **Store-and-forward** — the buddy holds each complete handshake (M1–M4 + beacon) durably (RAM + NVS) per BSSID and delivers it as one acknowledged unit, surviving master absence and buddy reboots
-- One `.pcap` per network written to `/ext/wifi/buddy_<name>_<ssid>.pcap`; "Handshake received" overlay on all mesh views
-- Buddy firmware ships in this repo under [`buddy_firmware/`](buddy_firmware/) (standalone headless ESP-IDF project)
-
-#### Bluetooth
-- **BLE Spam** — Apple Continuity (Pair/Action/NotYourDevice), Google FastPair (455+ models), Microsoft SwiftPair, Samsung Buds & Watch, Xiaomi QuickConnect
-- **BLE Walk** — passive scanner with GATT service/characteristic inspection
-- **BLE Clone** *(dev)* — replicate active BLE advertisements
-- **FindMy** — emulate Apple AirTag, Samsung SmartTag, Tile beacons (clone or generate keypairs)
-- **HID** *(see below)* — keyboard/mouse/media remote over BLE
-- **Bad USB** — via USB or BLE
-
-#### NRF24 *(2.4 GHz, external nRF24L01)*
-- **Spectrum analyzer** — live 2.4 GHz channel activity
-- **Jammer** *(rewritten)* — one engine with switchable channel sources (Protocol / Manual / WiFi / Activity scan), strategies (CW / Flood / Turbo) and presets; configuration persists per source
-- **MouseJacker** — inject keystrokes into vulnerable wireless mice/keyboards
-- Also available as a FAP (`nRF24_jammer`)
-
-#### Infrared
-RMT-based TX + RX.
-- Learn signals (auto-decoded or raw)
-- Browse, edit, and send saved remotes
-- Universal remotes: TV, AC, audio, projectors, fans, LED controllers (databases on SD)
-- Brute force category-based databases
-- Configurable IR pin and 5 V GPIO power
-- Protocols: NEC, NEC42, Samsung32, RC5/RC5X, RC6, SIRC 12/15/20, Kaseikyo, RCA, Pioneer
-
-### 🪪 NFC
-
-#### NFC *(PN532 over I2C)*
-- Read, save, emulate, write NFC cards/tags
-- Manual card generation (custom UID/ATQA/SAK)
-- Mifare Classic dictionary attack (system + user dictionaries)
-- Mifare Ultralight-C dictionary unlock
-- ISO15693 SLIX unlock with manual or stored DEF key
-- FeliCa system info, MIFARE DESFire app inspection, EMV transaction history
-- 14 supported protocols: ISO14443-3A/3B/4A/4B, ISO15693-3, FeliCa, MIFARE Classic/Ultralight/Plus/DESFire, SLIX, ST25TB, NTAG4xx, Type-4
-- 30+ supported card auto-parsers (Charlie Card, Clipper, EMV, Gallagher, HID, Opal, Skylanders, Troika, …)
-
-
-#### Passy *(FAP)*
-Biometric passport (MRTD) reader — reads and displays data groups from ePassports over NFC. Shipped as a prebuilt FAP in [sdcard.zip](sdcard.zip).
-
-#### TagTinker *(FAP)*
-Infrared ESL (Electronic Shelf Label) research toolkit. Transmits custom images/text to graphics tags via IR. RLE streaming, Android companion app for image editing, monochrome + accent-color support.
-
-### ⌨️ HID / USB
-
-#### Bad USB
-HID payload runner for Ducky-script (`.txt`) files from `/ext/badusb/`.
-- 16+ Ducky commands (DELAY, STRING, REPEAT, HOLD/RELEASE, MEDIA keys, mouse, ALT-CHAR/ALT-STRING, SYSRQ)
-- Layouts under `/ext/badusb/assets/layouts/*.kl` (~30 included)
-- Configurable USB VID/PID + device name
-- BLE bonding with custom MAC and PIN-verify pairing
-- Mouse movement, scroll, button emulation; per-character typing delay
-- **Transport:** USB OTG (TinyUSB) on T-Embed, BLE on Waveshare
-
-### 🛠 System / Tools
-
-#### Lock Menu / System Toggles
-The desktop lock menu doubles as the central system control panel (board-dependent, scrollable):
-- **qFlipper** — enable the qFlipper desktop bridge (VID/PID spoof + CDC RPC) so the official qFlipper app can connect *(USB-OTG boards)*
-- **USB Storage** — expose the SD card as a USB mass-storage device *(USB-OTG boards)*
-- **Bluetooth** — toggle BLE on/off
-- **WiFi** — toggle WiFi on/off (mutually exclusive with Bluetooth; reconnects to the last network automatically)
-- **Web-Filesystem** — start the SD-card web file server *(see WiFi above)*
-- **Mesh Clients** — buddy discovery & control *(see Mesh / Buddy above)*
-
-#### Archive
-SD-card file browser with tabs per media type: Favorites, Sub-GHz, NFC, LF-RFID, Infrared, iButton, Bad USB, U2F, Apps, Internal, Browser. Pin/unpin favorites; copy, paste, rename, delete, create folder.
-
-#### JS Runner
-mJS-based JavaScript runtime for user scripts in `/ext/apps/Scripts/*.js`.
-- **Available modules:** `gui` (loading/menu/dialogs/text+byte input/popup/file picker/widget), `notification`, `math`, `storage`, `event_loop`, `subghz`, `infrared`, `badusb`, `blebeacon`
-- **Excluded on this port** *(need HAL porting)*: `js_serial`, `js_gpio`, `js_i2c`, `js_spi`
-
-### 🎵 Media
-
-#### Streaming
-Unified music & video player (replaces the old separate MP3/Video apps). Browse `.mp3` and `.mp4`
-files from `/ext/apps_data/medien`.
-- **Music** — play locally through the speaker, or stream to **AirPlay** speakers
-- **Cast to your network** — **Chromecast / Google Cast** and **DLNA** devices, including TVs (music & video)
-
-### 🎮 Games
-
-#### Doom
-Full DOOM port. Place `doom1.wad` at `/ext/apps_data/doom/doom1.wad`. Encoder turns; click fires (short) / walks forward (long). Side-button uses doors/switches (short) / opens menu (long).
-
-#### Snake
-Classic snake game.
-
-### ⚙ Settings & General
-Bluetooth, backlight, clock, dolphin/passport, expansion port, input, notification, power, storage, system info, factory reset. Animated dolphin desktop on idle. File-pack manifest at `/ext/Manifest` (qFlipper-style asset list — its presence suppresses the "No DB" boot animation).
-- **Update Firmware** — wireless OTA firmware + SD-card update *(see [Firmware Update](#firmware-update) above)*
-- **Interface** — customize the main menu and its layout
-- **Spoofing** — change the device name and the shell/terminal color
-
-## SD Card Layout
-
-| Path | Used by |
+| File | Offset |
 |---|---|
-| `/ext/Manifest` | Desktop (presence check) |
-| `/ext/dolphin/` + `manifest.txt` | Idle animations |
-| `/ext/apps_assets/nfc/plugins/` | NFC protocol plugins (.fal) |
-| `/ext/apps_data/nfc/plugins/` | NFC card-parser plugins (.fal) |
-| `/ext/apps_data/js_app/plugins/` | JS module bindings (.fal) |
-| `/ext/apps_data/doom/doom1.wad` | Doom |
-| `/ext/badusb/` | Bad USB scripts + `assets/layouts/*.kl` |
-| `/ext/infrared/assets/` | Universal remote DBs (`tv.ir`, `ac.ir`, `audio.ir`, `projectors.ir`, `fans.ir`, `leds.ir`) |
-| `/ext/lfrfid/assets/iso3166.lfrfid` | LF-RFID country code lookup |
-| `/ext/nfc/assets/` | MIFARE & EMV dictionaries |
-| `/ext/subghz/assets/` | SubGHz keystores + `dangerous_settings` |
-| Device NVS (not SD) | Unique U2F identity and counter |
-| `/ext/asset_packs/` | Momentum asset packs (Swirl, Psyduck, Better-Pet included) |
-| `/ext/wifi/<ssid>.txt` | Saved WiFi passwords |
-| `/ext/wifi/buddy_<name>_<ssid>.pcap` | Mesh/Buddy handshake captures |
-| `/ext/wifi/evil_portal/login_template/` | Custom captive-portal templates (no verify) |
-| `/ext/wifi/evil_portal/router_template/` | Custom captive-portal templates (with WLAN verify) |
+| `bootloader.bin` | `0x0` |
+| `partition-table.bin` | `0x8000` |
+| `furi_esp32.bin` | `0x10000` |
+| `ota_data_initial.bin` | `0xBF0000` |
 
-A complete starter kit is in [sdcard.zip](sdcard.zip) — extract it onto a FAT32 SD.
+Flash settings: **ESP32-S3 / 16 MB / DIO / 80 MHz**.
+These offsets belong to this release's dual-OTA partition layout.
+`ota_data_initial.bin` does **not** belong at `0x10000`.
 
-## Building
+Example using esptool 4.x from the ESP-IDF 5.4.1 environment
+(replace `COM8` with your device's port):
 
-### Prerequisites
-
-- **[ESP-IDF v5.4.1](https://docs.espressif.com/projects/esp-idf/en/v5.4.1/esp32s3/get-started/)** (exact version required)
-- ESP-IDF export script sourced (default: `~/esp/esp-idf/export.sh`)
-
-### Build & Flash (Linux / macOS)
-
-```bash
-# T-Embed (auto-detects /dev/cu.usbmodem*)
-./buildAndFlash_T-Embed.sh
-
-# Build only
-./buildAndFlash_T-Embed.sh --build-only
-
-# Waveshare ESP32-C6
-./buildAndFlash_Waveshare_c6_1.47.sh
-./buildAndFlash_Waveshare_c6_1.9.sh
+```sh
+python -m esptool --chip esp32s3 --port COM8 --baud 460800 write_flash --flash_mode dio --flash_size 16MB --flash_freq 80m 0x0 bootloader.bin 0x8000 partition-table.bin 0x10000 furi_esp32.bin 0xBF0000 ota_data_initial.bin
 ```
 
-### Build & Flash (Windows)
+This is a **full serial installation**, not an instruction for an in-app OTA update.
+Do not erase the entire flash unless you intend to lose settings, pairing and U2F
+credentials. Do not overwrite OTA metadata during an ordinary in-app update.
 
-Use `winbuild.py` — a single CLI that wraps build, flash and serial-monitor steps for `cmd.exe` / PowerShell. Requires Python 3 and ESP-IDF v5.4.1 installed at `C:\Espressif\frameworks\esp-idf-v5.4.1` (or override via `ESP_IDF_DIR`).
+### SD card
 
-```bat
-:: One-time: install ESP-IDF python env
-python winbuild.py setup
+Extract the **contents** of `sdcard.zip` to the root of a FAT32 microSD card.
+Do not put the entire ZIP or an extra enclosing `sdcard` directory on the card.
+Keep both `apps` and `apps_assets`, as well as the other supplied folders.
+Merge carefully with an existing card: replacing files can overwrite custom data.
 
-:: Verify the toolchain activates
-python winbuild.py check
+| Folder / location | Purpose |
+|---|---|
+| `apps/` | Port-compatible FAP applications |
+| `apps_assets/` | Resources required by applications |
+| `apps_data/` | Application data and plugin resources |
+| `asset_packs/` | Momentum desktop/icon packs |
+| `dolphin/` | Desktop animation resources |
+| `badusb/` | Bad KB scripts and keyboard layouts |
+| `infrared/`, `nfc/`, `subghz/` | Protocol databases and saved data |
+| Device NVS, not the SD card | U2F identity/counter and device settings |
 
-:: Build T-Embed CC1101 (default board)
-python winbuild.py build
+Flipper Zero `.fap` binaries target a different processor and cannot simply be
+copied across. Use ESP32 builds compatible with this port's API. Included apps
+can still have individual limitations; compatibility is not universal.
 
-:: Build Waveshare ESP32-C6
-python winbuild.py build --board waveshare_c6
+## Build from source
 
-:: Flash (port defaults to %ESPPORT% or COM14)
-python winbuild.py flash --port COM14
+Use **ESP-IDF 5.4.1** and its Python environment. In an activated ESP-IDF shell:
 
-:: Stream serial output for N seconds
-python winbuild.py monitor --duration 30
+```sh
+# Windows
+python winbuild.py build --board t_embed
 
-:: Build + flash + monitor in one go
-python winbuild.py all --port COM14
+# Linux / macOS
+bash build.sh --board t_embed --build-only
 ```
 
-Boards: `t_embed` (default), `esp32s3`, `waveshare_c6` (or `waveshare_c6_1.9`), `waveshare_c6_1.47`. Override defaults with `ESP_IDF_DIR` and `ESPPORT` env vars. `monitor --reset` only works on USB-UART bridges, not on the ESP32-S3 native USB-Serial/JTAG — use `flash` or `all` to capture boot logs.
+The board target is `lilygo_t_embed_cc1101` / `esp32s3`. Standard helper builds
+write to `build_t_embed/`; `flasher_args.json` there is the source of truth for
+that build's flash files and offsets. GitHub Actions are not configured in this repository.
+The web flasher is maintained separately and is not included here.
 
-### Build a FAP
+## Limitations and safety
 
-```bash
-# Firmware must be built first (Linux/macOS)
-./buildFap.sh applications/main/my_app
-```
+- This is a work-in-progress port, **not full one-to-one Momentum compatibility**.
+  Some graphics/asset packs, app APIs and hardware-dependent functions differ.
+- U2F has **no secure element** and is not a certified security key. Never use it
+  as your only sign-in/recovery method. Erasing NVS or a device failure can lose keys.
+- Web-Filesystem uses **unencrypted HTTP**. Authentication does not protect traffic
+  from network eavesdropping; use only a trusted network.
+- PIN locking is not flash encryption or secure boot. Software and local firmware
+  images must be trusted.
+- Flipper-encrypted manufacturer keystores cannot be used as on a genuine Flipper.
+- ESP-IDF 5.4.1 still requires a security-update review before public release.
+  Completed checks are described in [SECURITY-REVIEW.md](SECURITY-REVIEW.md);
+  they are not a guarantee that the firmware has no vulnerabilities.
 
-### Debug: light-sleep telemetry
+## Credits and licensing
 
-Idle light sleep (screen off, on battery) is gated at runtime and runs silently.
-To measure it, build with `CONFIG_PM_LIGHT_SLEEP_CALLBACKS=y` (menuconfig, or add
-it to `sdkconfig.defaults.esp32s3`). The input service then logs a line every 5s:
+- [Sor3nt / Flipper-Zero-ESP32-Port](https://github.com/Sor3nt/Flipper-Zero-ESP32-Port)
+  — ESP32 platform port and application/hardware foundation.
+- [Next-Flip / Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware)
+  — Momentum code, interface and assets adapted for this fork.
+- [Flipper Devices](https://github.com/flipperdevices/flipperzero-firmware)
+  and the respective application/library contributors.
+- [Filip1x3](https://github.com/Filip1x3) — this fork and T-Embed integration.
 
-```
-lightsleep: allow=1 count=1234 slept=48000ms/50000ms (96%) wake[t=1230 g=4 o=0]
-```
-
-Counters persist while the device stays powered, so idling on battery and then
-reconnecting USB reports the sleep accumulated during the battery window. Leave
-the option off for normal builds; it adds a small always-on callback.
-
-## Porting Approach
-
-This port preserves the original Flipper Zero architecture as closely as possible:
-
-- **Furi OS** runs on FreeRTOS with the same thread/mutex/event/record API
-- **Services** (GUI, Input, Storage, Loader, Desktop, BT) use the same message-queue and record-system patterns
-- **HAL** maps STM32 peripherals to ESP-IDF drivers (SPI → `esp_lcd`, I2C → CST816S/PN532, RMT → IR, Bluedroid → BLE, TinyUSB → USB-HID)
-- **Display** renders the original 128×64 mono framebuffer, then 2× upscales to RGB565 for the color LCD
-- **Applications** compile with minimal changes (`#include` path adjustments, no-op stubs for missing hardware like 1-Wire)
-- **`malloc` is redefined to `calloc`** — STM32 heap starts zeroed, ESP32 does not
-- **Crypto** is stubbed (no Flipper-Enclave key) — affects encrypted SubGHz keystores; everything else uses real mbedtls
+Original copyright/license notices are retained in source files and libraries.
+The Momentum GPL-3.0 license is included in
+[licenses/Momentum-Firmware-GPL-3.0.txt](licenses/Momentum-Firmware-GPL-3.0.txt).
