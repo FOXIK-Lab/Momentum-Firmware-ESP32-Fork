@@ -8,7 +8,8 @@ with code, interface components and assets adapted from
 [Momentum Firmware](https://github.com/Next-Flip/Momentum-Firmware).
 This is an independent project, not an official Momentum or Flipper Devices release.
 
-[Download firmware and SD files](https://github.com/Filip1x3/Momentum-Firmware-ESP32-Port/releases)
+[Web Flasher](https://momentum-esp32-port.pages.dev/)
+ · [Download firmware and SD files](https://github.com/Filip1x3/Momentum-Firmware-ESP32-Port/releases)
  · [Security notes](SECURITY.md) · [Security review](SECURITY-REVIEW.md)
 
 ## On the device
@@ -117,6 +118,14 @@ permission to test. Included features are not a guarantee that every protocol,
 card, peripheral or third-party app works.
 
 ## Install
+
+Use the **[Web Flasher](https://momentum-esp32-port.pages.dev/)** to install
+firmware over USB from a desktop browser with Web Serial, such as Chrome or Edge.
+Select LilyGo T-Embed CC1101, choose the firmware and installation mode, connect
+the device and confirm installation. Close qFlipper and other serial clients first.
+The hosted installer currently offers its included v0.1.0 package; automatic
+GitHub release synchronization is not configured on the public hosting yet.
+Download and extract the matching SD-card package after flashing.
 
 Back up your SD card and any important device data before flashing.
 Download the four `.bin` files and `sdcard.zip` from
