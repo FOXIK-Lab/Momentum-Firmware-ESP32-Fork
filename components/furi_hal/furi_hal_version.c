@@ -21,7 +21,7 @@
 
 static const char* const s_device_name_pool[] = {
     "Axiom",  "Blip",   "Byte",   "Chirp",  "Cipher",
-    "Core",   "Data",   "Drift",  "Echo",   "Edge",
+    "Core",   "F0X1K",   "Drift",  "Echo",   "Edge",
     "Flux",   "Frame",  "Glint",  "Hover",  "Ion",
     "Jazz",   "Krypto", "Lumen",  "Motif",  "Nexus",
     "Orbit",  "Pixel",  "Pulse",  "Quark",  "Relic",
