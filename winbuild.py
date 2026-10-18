@@ -11,16 +11,16 @@ Usage examples:
     python winbuild.py check                          # verify env activates
     python winbuild.py build                          # build T-Embed CC1101 firmware
     python winbuild.py build --board waveshare_c6
-    python winbuild.py flash --port COM14
+    python winbuild.py flash --port COM5
     python winbuild.py monitor --duration 60          # stream live output
     python winbuild.py monitor --duration 15 --reset  # pulse DTR/RTS reset (UART bridges only)
-    python winbuild.py all --port COM14               # build + flash + monitor (boot log captured)
+    python winbuild.py all --port COM5               # build + flash + monitor (boot log captured)
     python winbuild.py cross-build                    # build for ALL supported boards in sequence
     python winbuild.py cross-build --boards t_embed waveshare_c6
 
 Env vars (overridable):
     ESP_IDF_DIR  - path to ESP-IDF (default: C:\\Espressif\\frameworks\\esp-idf-v5.4.1)
-    ESPPORT      - serial port (default: COM14)
+    ESPPORT      - serial port (default: COM5)
 """
 
 import argparse
@@ -36,7 +36,7 @@ DEFAULT_ESP_IDF_DIR = (
     if sys.platform == "win32"
     else str(Path.home() / "esp" / "esp-idf")
 )
-DEFAULT_PORT = "COM14" if sys.platform == "win32" else "/dev/ttyUSB0"
+DEFAULT_PORT = "COM5" if sys.platform == "win32" else "/dev/ttyUSB0"
 DEFAULT_DURATION = 8.0
 
 # Mirrors build.sh board mapping.
@@ -280,7 +280,7 @@ def build_parser():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=(
             "Boards: " + ", ".join(BOARDS.keys()) + "\n"
-            "Defaults: board=t_embed, port=$ESPPORT or COM14, duration=8s.\n"
+            "Defaults: board=t_embed, port=$ESPPORT or COM5, duration=8s.\n"
             "Override ESP-IDF location via ESP_IDF_DIR env var.\n"
             "monitor does not reset by default; pass --reset on USB-UART bridges, or use\n"
             "`flash` (or `all`) to capture boot logs (flash performs a real hard reset)."))
@@ -297,11 +297,11 @@ def build_parser():
 
     pf = sub.add_parser("flash", help="Flash firmware over USB.")
     pf.add_argument("--board", choices=BOARDS, default="t_embed")
-    pf.add_argument("--port", default=None, help="Serial port (default: $ESPPORT or COM14)")
+    pf.add_argument("--port", default=None, help="Serial port (default: $ESPPORT or COM5)")
     pf.set_defaults(func=cmd_flash)
 
     pm = sub.add_parser("monitor", help="Stream serial output for N seconds.")
-    pm.add_argument("--port", default=None, help="Serial port (default: $ESPPORT or COM14)")
+    pm.add_argument("--port", default=None, help="Serial port (default: $ESPPORT or COM5)")
     pm.add_argument("--duration", type=float, default=DEFAULT_DURATION,
                     help=f"Capture seconds (default: {DEFAULT_DURATION})")
     pm.add_argument("--reset", action="store_true",
